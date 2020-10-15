@@ -1,7 +1,8 @@
 <template>
     <div>
-        <button @click="$emit('exec','merge')">合并</button>
-        <button @click="$emit('exec','split')">拆分</button>
+        <el-button @click="$emit('exec','merge')">合并</el-button>
+        <el-button @click="$emit('exec','split')">拆分</el-button>
+        <el-button @click="$emit('exec','save')">保存</el-button>
     </div>
 </template>
 

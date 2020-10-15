@@ -112,6 +112,7 @@
     .item-wrapper {
         width: 49%;
         padding: .1rem 0;
+        text-align: center;
         user-select: none;
         cursor: pointer;
         background: #fff;

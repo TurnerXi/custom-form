@@ -9,13 +9,14 @@
                         :colspan="colspan(cell)"
                         :rowspan="rowspan(cell)"
                         :class="['editor-cell',selected.indexOf(idx)>-1?'selected':'']"
-                        :style="{width: cellWidth(idx),height: cellHeight(idx)}"
+                        :style="cellStyle(cell,idx)"
                         v-dropper="dropEvent"
                         @mousedown="cellBindEvent($event,idx)">
                         <div v-if="cell.cType === 'text'" :ref="'text'+idx"
                              class="editor-text-content"
                              @input="cellInputHandler(cell,$event)"
                              @blur="cellBlurHandler(cell,$event)">
+                            {{cell.content}}
                         </div>
                         <div v-else>
                             <component :is="compMap[cell.cType]" v-bind="cell.content" v-model="cell.value" />
@@ -35,15 +36,29 @@
 <script>
     import packages from '../../packages'
     export default {
+        model: {
+            event: 'change',
+            prop: 'layout'
+        },
         props: {
-            cmd: String
+            cmd: String,
+            rows: {
+                type: Number,
+                default: 0
+            },
+            cols: {
+                type: Number,
+                default: 0
+            },
+            layout: {
+                type: Array,
+                default: () => []
+            }
         },
         data() {
             return {
                 editIdx: -1,
                 selected: [],
-                rows: 10,
-                cols: 24,
                 cells: []
             }
         },
@@ -64,29 +79,48 @@
                     this.splitCell();
                 }
             },
-            // cells(val) {
-            // console.log(val)
-            // }
-        },
-        created() {
-            for (let y = 1; y <= this.rows; y++) {
-                for (let x = 1; x <= this.cols; x++) {
-                    this.cells.push({
-                        start: [x, y],
-                        end: [x, y],
-                        state: 'cell',
-                        cType: 'text',
-                        content: ''
-                    })
+            layout(val) {
+                if (this.cells !== val) {
+                    this.initCells();
                 }
             }
         },
+        mounted() {
+            this.initCells();
+        },
         methods: {
+            initCells() {
+                this.cells = this.layout.map(item => {
+                    return item ? {
+                        start: item.start,
+                        end: item.end,
+                        state: item.state || 'cell',
+                        cType: item.cType || 'text',
+                        content: item.content || '',
+                        attrs: item.attrs || {}
+                    } : null
+                });
+                this.emitEvent();
+            },
+            emitEvent() {
+                this.$emit('change', this.cells);
+            },
             colspan(item) {
                 return item.end[0] - item.start[0] + 1;
             },
             rowspan(item) {
                 return item.end[1] - item.start[1] + 1;
+            },
+            cellStyle(cell, idx) {
+                return {
+                    width: this.cellWidth(idx),
+                    height: this.cellHeight(idx),
+                    lineHeight: this.cellHeight(idx),
+                    textAlign: cell.attrs.textAlign || 'center',
+                    backgroundColor: cell.attrs.backgroundColor,
+                    color: cell.attrs.textColor,
+                    fontSize: cell.attrs.fontSize
+                }
             },
             cellWidth(idx) {
                 let item = this.cells[idx];
@@ -116,6 +150,7 @@
                 startItem.state = 'merge';
                 this.cells = cells.map((item, idx) => selected.indexOf(idx) > 0 ? null : item);
                 this.selected = [this.selected[0]];
+                this.emitEvent();
             },
             splitCell() {
                 const selected = [...this.selected];
@@ -138,6 +173,7 @@
                 this.cells[selected[0]].cType = cType;
                 this.cells[selected[0]].content = content;
                 this.selected = selected.sort((a, b) => (a - b));
+                this.emitEvent();
             },
             dropEvent(data, e) {
                 const idx = Number(e.currentTarget.dataset.idx);
@@ -146,12 +182,16 @@
 
                 this.cells[idx].cType = cType;
                 this.cells[idx].content = createDefaultConf();
+                this.selected = [idx];
+                this.$emit('select', this.selected);
+                this.emitEvent();
             },
             cellBlurHandler(cell, e) {
                 const el = e.currentTarget;
                 el.contentEditable = false;
                 el.innerText = cell.content;
                 this.editIdx = -1;
+                this.emitEvent();
             },
             cellInputHandler(cell, e) {
                 cell.content = e.currentTarget.innerText;
@@ -159,6 +199,7 @@
             clearContent(idx) {
                 this.$set(this.cells[idx], 'cType', 'text')
                 this.$set(this.cells[idx], 'content', '')
+                this.emitEvent();
             },
             cellBindEvent(e, idx) {
                 const { currentTarget } = e;
@@ -210,10 +251,11 @@
                     if (isClick) {
                         if (this.editIdx === -1) {
                             this.selected = [idx];
-                            this.isShowConfigurator = this.cells[idx].cType && this.cells[idx].cType !== 'text';
+                            this.$emit('select', this.selected);
                         }
                     } else {
                         this.selected = this.selected.sort((a, b) => (a - b));
+                        this.$emit('select', this.selected);
                     }
 
                 }
@@ -324,7 +366,7 @@
         border: 1px solid #000;
 
         &.selected {
-            background: #069;
+            background-color: #bde9ff !important;
         }
 
         .clear-content {

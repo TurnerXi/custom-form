@@ -33,6 +33,7 @@
             }
         }
     }
+
 </script>
 
 <style lang="scss" scoped>
@@ -50,7 +51,7 @@
     .drawer-inner {
         width: 3rem;
         height: 100%;
-        background-color: #999;
+        background-color: #eee;
     }
 
     .handler {
@@ -59,8 +60,8 @@
         width: .3rem;
         height: .6rem;
         line-height: .6rem;
-        background-color: #999;
-        color: #fff;
+        background-color: #ccc;
+        color: #333;
         font-size: .16rem;
         box-sizing: border-box;
         cursor: pointer;
@@ -102,4 +103,5 @@
     .collapse-leave-to {
         width: 0;
     }
+
 </style>

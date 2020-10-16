@@ -8,7 +8,7 @@
                         :data-idx="calcIdx(cell.start[0],cell.start[1])"
                         :colspan="colspan(cell)"
                         :rowspan="rowspan(cell)"
-                        :class="['editor-cell',selected.indexOf(idx)>-1?'selected':'']"
+                        :class="['editor-cell',selectedMap[idx]>-1?'selected':'']"
                         :style="cellStyle(cell,idx)"
                         v-dropper="dropEvent"
                         @mousedown="cellBindEvent($event,idx)">
@@ -69,6 +69,12 @@
                     map[key] = packages[key].component;
                 }
                 return map;
+            },
+            selectedMap() {
+                return this.selected.reduce((total, item) => {
+                    total[item] = 1;
+                    return total;
+                }, {})
             }
         },
         watch: {
@@ -208,6 +214,13 @@
                 let startY = e.pageY;
 
                 const list = this.$refs.table.querySelectorAll('td');
+                const boxes = [];
+                for (let i = 0; i < list.length; i++) {
+                    const element = list[i];
+                    const idx = Number(element.dataset.idx);
+                    boxes[idx] = element.getBoundingClientRect();
+                }
+
                 const mousemove = (ev) => {
                     ev.preventDefault();
                     if (this.editIdx > -1) return;
@@ -224,19 +237,18 @@
                         let width = Math.abs(distX);
                         let height = Math.abs(distY);
 
-                        this.selected = [];
+                        let selected = [];
                         // drawHelper(startX, startY, pageX, pageY);
-                        for (let i = 0; i < list.length; i++) {
-                            const element = list[i];
-                            const idx = Number(element.dataset.idx);
-                            if (this.selected.indexOf(idx) < 0) {
-                                const box = element.getBoundingClientRect();
+                        for (let i = 0; i < boxes.length; i++) {
+                            if (boxes[i]) {
+                                const box = boxes[i];
                                 if (isRectCollision(box.left, box.top, box.width, box.height, px, py, width, height)) {
                                     // drawBox(box);
-                                    this.selected.push(idx);
+                                    selected.push(i);
                                 }
                             }
                         }
+                        this.selected = [...new Set(selected)];
                     }
 
                 }

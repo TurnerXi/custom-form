@@ -15,7 +15,7 @@
             defaultValue: [String, Boolean],
             options: {
                 type: Array,
-                default: [true, false]
+                default: () => [true, false]
             }
         }
     }

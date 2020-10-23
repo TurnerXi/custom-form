@@ -1,22 +1,24 @@
 <template>
     <div id="app">
-        <FormBuilder />
+        <router-view />
     </div>
 </template>
 
 <script>
     require('~/assets/font/iconfont.css');
-    import FormBuilder from './views/FormBuilder'
     export default {
         name: 'App',
-        components: {
-            FormBuilder
-        }
     }
 
 </script>
 
 <style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
     html {
         font-size: 100px;
     }
@@ -25,7 +27,6 @@
         font-family: Avenir, Helvetica, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        margin-top: .6rem;
         font-size: .12rem;
     }
 

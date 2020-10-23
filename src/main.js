@@ -1,7 +1,10 @@
 import Vue from 'vue'
+import VueRouter from 'vue-router';
+import routes from './routes';
 import App from './App.vue'
 import ElementUI from 'element-ui';
 
+Vue.use(VueRouter);
 Vue.config.productionTip = false
 
 Vue.directive('dragger', {
@@ -47,5 +50,6 @@ Vue.use(ElementUI, {
 });
 
 new Vue({
+    router: new VueRouter({ routes }),
     render: h => h(App),
 }).$mount('#app')

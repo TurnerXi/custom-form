@@ -1,0 +1,22 @@
+{
+  "name": "Fullsee",
+  "prefix": "fullsee",
+  "uri": "http://fullsee",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "associations": [],
+  "types": [
+    {
+      "name": "Assignable",
+      "extends": ["bpmn:UserTask"],
+      "properties": [
+        {
+          "name": "assignee",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}
